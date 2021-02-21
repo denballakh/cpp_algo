@@ -28,45 +28,19 @@ int main() {
     return 0;
 }
 
-#include<string>
-// int main_() {
-//     unsigned int n;
-//     cin >> n;
-//     std::string res = "", s;
-//     double x;
-//     for (int i = 0; i < n; i++) {
-//         cin >> s >> x >> x >> x;
-//         res += s + " ";
-//     }
-//     cout << res;
-//     return 0;
-// }
 Cat* get_home_for_a_cats_pride(unsigned int n){
-    std::string res = "", s;
-    double x;
-    for (int i = 0; i < n; i++) {
-        cin >> s >> x >> x >> x;
-        res += s + " ";
-    }
-    cout << res;
-    return 0;
-};
-void clear_home_of_a_cats_pride(Cat *cats, unsigned int n){};
-
-Cat* get_home_for_a_cats_pride(unsigned int n) {
     Cat* cats = new Cat[n];
     for (int i = 0; i < n; i++) {
-        Cat cat = *(cats + i);
-        cat.name = new char[11];
+        Cat* cat = cats + i;
+        cat->name = new char[10];
     }
     return cats;
 }
 
-void clear_home_of_a_cats_pride(Cat *cats, unsigned int n) {
+void clear_home_of_a_cats_pride(Cat *cats, unsigned int n){
     for (int i = 0; i < n; i++) {
-        Cat cat = *(cats + i);
-        delete[] cat.name;
+        Cat* cat = cats + i;
+        delete[] cat->name;
     }
     delete[] cats;
 }
-
