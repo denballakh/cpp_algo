@@ -7,62 +7,71 @@ using std::cin, std::cout, std::endl;
 struct Node {
     T value;
     struct Node* next;
+
+    Node(T value=0, Node* next=NULL): next(next), value(value) {}
 };
 
 
 
-bool is_empty(Node* head) {
-    return head == NULL;
-}
-
-bool is_node(Node* node) {
-    return node != NULL;
-}
-
-bool is_end(Node* node) {
-    return node == NULL || node->next == NULL;
-}
-
-void step(Node** node) {
-    (*node) = (*node)->next;
-}
-
 Node* last_node(Node* head) {
     Node* p = head;
-    if (is_empty(p)) return NULL;
-    while (!is_end(p)) {
-        step(&p);
+    if (p == NULL) return NULL;
+    while (p->next != NULL) {
+        p = p->next;
     }
     return p;
 }
 
 int length(Node* head) {
     Node* p = head;
-    if (is_empty(p)) return 0;
+    if (p == NULL) return 0;
     int l = 0;
-    while (!is_end(p)) {
-        step(&p);
+    while (p->next != NULL) {
+        p = p->next;
         l++;
     }
     return l;
 }
 
-// 1. Добавление элемента в начало списка
-// Реализуйте функцию, добавляющую элемент в начало списка. Поскольку указатель на первый элемент будет изменён, функция должна принимать указатель на указатель.
-void push_left(Node** head, T value) {
-    Node* node = new Node;
-    node->value = value;
-    node->next = *head;
+void insert_after(Node** head, T value) {
+    Node* node = new Node(value);
+    if (*head == NULL) {
+        *head = node;
+    } else {
+        node->next = (*head)->next;
+        (*head)->next = node;
+    }
+}
 
+void insert_in_sorted(Node** head, T value) {
+    Node* node = new Node(value);
+    if (*head == NULL) {
+        *head = node;
+    } else {
+        Node* prev = NULL;
+        Node* p = *head;
+        while (p != NULL && p->value < value) {
+            prev = p;
+            p = p->next;
+        }
+        node->next = p;
+        if (prev == NULL) {
+            *head = node;
+        } else {
+            prev->next = node;
+        }
+    }
+}
+
+void push_left(Node** head, T value) {
+    Node* node = new Node(value, *head);
     *head = node;
 }
 
 void push_right(Node** head, T value) {
-    Node* node = new Node;
-    node->value = value;
-    node->next = NULL;
+    Node* node = new Node(value);
 
-    if (is_empty(*head)) {
+    if (*head == NULL) {
         *head = node;
     } else {
         Node* last = last_node(*head);
@@ -70,26 +79,42 @@ void push_right(Node** head, T value) {
     }
 }
 
+void push_index(Node** head, T value, int index) {
+    Node* node = new Node(value);
 
-// 2. Удаление всех элементов списка
-// Реализуйте функцию очистки списка. С освобождением памяти и записью NULL в указатель на первый элемент:
-void clear_list(Node** head) {
-    while (is_node(*head)) {
-        delete *head;
-        step(head);
-    }
-}
-
-// 3. Удаление элемента по заданному индексу с возвратом его значения:
-T pop(Node** head, int index) {
-    if(is_empty(*head)) return 0;
     int i = 0;
     Node* prev = NULL;
     Node* p = *head;
-    while (i < index && is_node(p)) {
+    while (i < index) {
         i++;
         prev = p;
-        step(&p);
+        p = p-> next;
+    }
+    if (prev == NULL) {
+        node->next = *head;
+        *head = node;
+    } else {
+        prev->next = node;
+        node->next = p;
+    }
+}
+
+void clear_list(Node** head) { // пока не делает ничего, только присваивает NULL сложным способом
+    while ((*head) != NULL) {
+        // delete *head; // почему-то не работает
+        *head = (*head)->next;
+    }
+}
+
+T pop(Node** head, int index) {
+    if(*head == NULL) return 0;
+    int i = 0;
+    Node* prev = NULL;
+    Node* p = *head;
+    while (i < index && p != NULL && p->next != NULL) {
+        i++;
+        prev = p;
+        p = p-> next;
     }
     if (prev == NULL) {
         *head = p->next;
@@ -101,11 +126,14 @@ T pop(Node** head, int index) {
     return result;
 }
 
-// 4. Удаление первого элемента списка с данным значением:
+T pop_left(Node** head, int index) { return pop(head, 0); }
+T pop_right(Node** head, int index) { return pop(head, length(*head)); } //переделать
+
+
 void remove(Node** head, T value) {
     Node* prev = NULL;
     Node* p = *head;
-    while (is_node(p)) {
+    while (p != NULL) {
         if (p->value == value) {
             if (prev != NULL) {
                 prev->next = p->next;
@@ -116,15 +144,14 @@ void remove(Node** head, T value) {
             return;
         }
         prev = p;
-        step(&p);
+        p = p-> next;
     }
 }
 
-// 5. Удаление всех элементов списка с данным значением:
 void remove_all(Node** head, T value) {
     Node* prev = NULL;
     Node* p = *head;
-    while (is_node(p)) {
+    while (p != NULL) {
         if (p->value == value) {
             if (prev != NULL) {
                 prev->next = p->next;
@@ -135,34 +162,32 @@ void remove_all(Node** head, T value) {
             // return;
         }
         prev = p;
-        step(&p);
+        p = p-> next;
     }
 }
 
-// 6. Изменение всех элементов списка с данным значением на новое.
 void replace_all(Node* head, T old_value, T new_value) {
     Node* prev = NULL;
     Node* p = head;
-    while (is_node(p)) {
+    while (p != NULL) {
         if (p->value == old_value) {
             p->value = new_value;
         }
         prev = p;
-        step(&p);
+        p = p-> next;
     }
 }
 
 // 7. Определение, сколько различных значений содержится в списке.
 int unique(Node* head) {
-
+    return 0;
 }
 
-// 8. Изменение порядка элементов на обратный.
 void reverse(Node** head) {
     Node* prev = NULL;
     Node* p = *head;
     Node* truenext;
-    while (is_node(p)) {
+    while (p != NULL) {
         truenext = p->next;
         p->next = prev;
         prev = p;
@@ -172,18 +197,25 @@ void reverse(Node** head) {
 }
 
 // 9*. Сортировка элементов списка двумя способами (изменение указателей, изменение значений элементов).
-void sort_1() {
-
+void sort_1(Node** head) {
+    Node* sorted = NULL;
+    Node* top = *head;
+    while (top != NULL) {
+        insert_in_sorted(&sorted, top->value);
+        top = top->next;
+    }
+    clear_list(head);
+    *head = sorted;
 }
 void sort_2() {
 
 }
 
 void print(Node* head) {
-    while(1) {
+    while (true) {
         if (head == NULL) {
             cout << "null\n";
-            return;
+            break;
         } else {
             cout << head->value << "\t-> ";
             head = head->next;
@@ -191,19 +223,23 @@ void print(Node* head) {
     }
 }
 
-int main(){
-    Node* a = new Node;
-    Node* b = new Node;
-    Node* c = new Node;
-    Node* d = new Node;
-    Node* e = new Node;
+int main() {
+    Node* a = NULL;
 
-    a->value = 0; a->next = b;
-    b->value = 1; b->next = c;
-    c->value = 2; c->next = d;
-    d->value = 3; d->next = e;
-    e->value = 4; e->next = NULL;
+    push_left(&a, 0);
+    push_left(&a, 1);
+    push_left(&a, 2);
+    push_left(&a, 3);
+    push_left(&a, 4);
+    push_left(&a, 5);
+    push_left(&a, 6);
+    push_left(&a, 7);
+    push_left(&a, 8);
+    push_left(&a, 9);
 
+
+    print(a);
+    sort_1(&a);
     print(a);
     push_left(&a, 7);
     print(a);
