@@ -17,20 +17,14 @@ struct String {
         this->str = new char[this->capacity];
     }
 
-    String(size_t cnt, char c) {
-        this->size = cnt;
-        this->capacity = cnt > 0 ? cnt : 1;
-        this->str = new char[this->capacity];
+    String(size_t cnt, char c): String() {
         for (int i = 0; i < cnt; i++)
-            this->str[i] = c;
+            this->push_back(c);
     }
 
-    String(const String& s) {
-        this->size = s.size;
-        this->capacity = s.capacity;
-        this->str = new char[this->capacity];
+    String(const String& s): String() {
         for (int i = 0; i < this->capacity; i++)
-            this->str[i] = s.str[i];
+            this->push_back(s.str[i]);
     }
 
     String(char c): String(1, c) {}  // Конструктор строки из одного символа
@@ -45,7 +39,6 @@ struct String {
     ~String() { delete[] this->str; }
 
     void push_back(char c) {
-        // cout << __PRETTY_FUNCTION__ << endl;
         if (this->size == this->capacity)
             this->resize(this->capacity ? this->capacity * 2 : 1);
 
@@ -279,7 +272,7 @@ int main() {
     {
         cout << "push_back:" << endl;
         String s("-string-");
-        cout << s << endl;
+        PRINT(s);
         s.push_back('!');
         PRINT(s);
         cout << endl;

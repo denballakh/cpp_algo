@@ -6,10 +6,12 @@ using std::cin, std::cout, std::endl;
 
 struct Node {
     T value;
-    struct Node* next = nullptr;
+    struct Node* next;
 
     Node(T value=0, Node* next=nullptr): next(next), value(value) {}
 };
+
+
 
 Node* last_node(Node* head) {
     Node* p = head;
@@ -97,14 +99,13 @@ void push_index(Node** head, T value, int index) {
     }
 }
 
-void clear_list(Node** head) {
-    while ((*head) != nullptr) {
-        auto p = (*head)->next;
-        delete *head;
-        *head = p;
-    }
+void clear_list(Node** head) { // пока не делает ничего, только присваивает nullptr сложным способом
+    // while ((*head) != nullptr) {
+    //     delete head; // почему-то не работает
+    //     *head = (*head)->next;
+    // }
+    *head = nullptr;
 }
-
 
 T pop(Node** head, int index) {
     if(*head == nullptr) return 0;
